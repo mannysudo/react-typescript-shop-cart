@@ -41,9 +41,32 @@ function App() {
   const getTotalItems = (items: CartItemType[]) =>
     items.reduce((ack: number, item) => ack + item.amount, 0);
 
-  const handleAddToCart = (clickedItem: CartItemType) => {};
+  const handleAddToCart = (clickedItem: CartItemType) => {
+    setCartItems(prev => {
+      //1. if item is already in cart
+      const isItemInCart = prev.find(item => item.id === clickedItem.id)
+      if (isItemInCart) {
+        return prev.map(item => (
+          item.id === clickedItem.id ? { ...item, amount: item.amount + 1} : item
+        ))
+      }
+      //2. first time item is added
+      return [...prev, {...clickedItem, amount: 1}]
+    })
+  };
 
-  const handleRemoveFromCart = () => {};
+  const handleRemoveFromCart = (id: number) => {
+    setCartItems(prev => (
+      prev.reduce((ack, item) => {
+        if (item.id === id) {
+          if (item.amount === 1) return ack;
+          return [...ack, {...item, amount: item.amount -1 }]
+        } else {
+          return [...ack, item]
+        }
+      }, [] as CartItemType[])
+    ))
+  };
 
   if (isLoading) return <LinearProgress />;
   if (error) return <div>Something Went Wrong</div>;
